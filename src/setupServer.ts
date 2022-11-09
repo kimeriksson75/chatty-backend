@@ -1,4 +1,3 @@
-import { CustomError, IErrorResponse } from './shared/globals/helpers/error-handler';
 import { Application, json, urlencoded, Response, Request, NextFunction } from 'express';
 import http from 'http';
 import cors from 'cors';
@@ -7,15 +6,17 @@ import hpp from 'hpp';
 import compression from 'compression';
 import cookieSession from 'cookie-session';
 import HTTP_STATUS from 'http-status-codes';
-import { config } from './config';
 import { Server } from 'socket.io';
 import { createClient } from 'redis';
 import { createAdapter } from '@socket.io/redis-adapter';
-import applicationRoutes from './routes';
+import { config } from '@root/config';
+import { CustomError, IErrorResponse } from '@globals/helpers/error-handler';
+import applicationRoutes from '@root/routes';
 import Logger from 'bunyan';
 
 const SERVER_PORT = 5000;
 const log: Logger = config.createLogger('server');
+
 export class ChattyServer {
   private app: Application;
 
@@ -32,21 +33,24 @@ export class ChattyServer {
   }
 
   private securityMiddleware(app: Application): void {
+    app.set('trust proxy', 1);
     app.use(
       cookieSession({
         name: 'session',
         keys: [config.SECRET_KEY_ONE!, config.SECRET_KEY_TWO!],
-        maxAge: 24 * 7 * 3600000,
-        secure: config.NODE_ENV !== 'development', // while https true
+        maxAge: 24 * 7 * 3600000, // token expiration in seconds
+        secure: config.NODE_ENV !== 'development',
+        sameSite: 'none' // comment this line when running the server locally
       })
     );
+    app.use(hpp());
     app.use(helmet());
     app.use(
       cors({
         origin: config.CLIENT_URL,
         credentials: true,
         optionsSuccessStatus: 200,
-        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
       })
     );
   }
@@ -90,8 +94,8 @@ export class ChattyServer {
     const io: Server = new Server(httpServer, {
       cors: {
         origin: config.CLIENT_URL,
-        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-      },
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+      }
     });
 
     const pubClient = createClient({ url: config.REDIS_HOST });
@@ -103,10 +107,13 @@ export class ChattyServer {
     return io;
   }
   private startHttpServer(httpServer: http.Server): void {
-    log.info(`Server has started with process ${process.pid} `);
+    log.info(`Worker with process id of ${process.pid} has started...`);
+    log.info(`Server has started with process ${process.pid}`);
     httpServer.listen(SERVER_PORT, () => {
-      log.info(`Server running on port ${SERVER_PORT} `);
+      log.info(`Server running on port ${SERVER_PORT}`);
     });
   }
-  private socketIOConnection(io: Server): void {}
+  private socketIOConnection(io: Server): void {
+    log.info(`socketIOConnection ${io}`);
+  }
 }
