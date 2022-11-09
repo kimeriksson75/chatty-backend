@@ -20,12 +20,22 @@ export abstract class CustomError extends Error {
   constructor(message: string) {
     super(message);
   }
+
   serializeErrors(): IError {
     return {
       message: this.message,
       status: this.status,
-      statusCode: this.statusCode,
+      statusCode: this.statusCode
     };
+  }
+}
+
+export class JoiRequestValidationError extends CustomError {
+  statusCode = HTTP_STATUS.BAD_REQUEST;
+  status = 'error';
+
+  constructor(message: string) {
+    super(message);
   }
 }
 
@@ -56,17 +66,8 @@ export class NotAuthorizedError extends CustomError {
   }
 }
 
-export class FileToLargeError extends CustomError {
+export class FileTooLargeError extends CustomError {
   statusCode = HTTP_STATUS.REQUEST_TOO_LONG;
-  status = 'error';
-
-  constructor(message: string) {
-    super(message);
-  }
-}
-
-export class JoiValidationError extends CustomError {
-  statusCode = HTTP_STATUS.BAD_REQUEST;
   status = 'error';
 
   constructor(message: string) {
