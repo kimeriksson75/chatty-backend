@@ -12,8 +12,8 @@ import { upload } from '@globals/helpers/cloudinary-upload';
 import { IAuthDocument, ISignUpData } from '@auth/interfaces/auth.interface';
 import { UserCache } from '@services/redis/user.cache';
 import { IUserDocument } from '@user/interfaces/user.interface';
-import { authQueue } from '@services/quesues/auth.queue';
-import { userQueue } from '@services/quesues/user.queue';
+import { authQueue } from '@services/queues/auth.queue';
+import { userQueue } from '@services/queues/user.queue';
 import { config } from '@root/config';
 const userCache: UserCache = new UserCache();
 
@@ -43,7 +43,6 @@ export class SignUp {
     });
 
     const result: UploadApiResponse = (await upload(avatarImage, `${userObjectId}`, true, true)) as UploadApiResponse;
-    // console.log('result:', result);
     if (!result?.public_id) {
       return next(new BadRequestError('File upload: Error occurred. Try again.'));
     }
@@ -82,7 +81,7 @@ export class SignUp {
       _id,
       uId,
       username: Helpers.firstLetterUppercase(username),
-      email: Helpers.firstLetterUppercase(email),
+      email: email?.toLowerCase(),
       password,
       avatarColor,
       createdAt: new Date()
