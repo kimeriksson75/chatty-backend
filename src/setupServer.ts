@@ -1,4 +1,4 @@
-import { Application, json, urlencoded, Response, Request, NextFunction } from 'express';
+import { Application, json, urlencoded, Response, Request } from 'express';
 import http from 'http';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -70,12 +70,12 @@ export class ChattyServer {
       res.status(HTTP_STATUS.NOT_FOUND).json({ message: `${req.originalUrl} not found` });
     });
 
-    app.use((error: IErrorResponse, req: Request, res: Response, next: NextFunction) => {
+    app.use((error: IErrorResponse, req: Request, res: Response) => {
       log.error(error);
       if (error instanceof CustomError) {
         return res.status(error.statusCode).json(error.serializeErrors());
       }
-      next();
+      return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ message: 'Unknown error' });
     });
   }
 

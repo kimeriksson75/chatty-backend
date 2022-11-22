@@ -9,8 +9,8 @@ withCredentials: true
 
 {
   "username": "kimsson",
-  "password": "qwerty",
-  "email": "identity@limsson.com",
+  "password": "ytrewq",
+  "email": "identity@kimsson.com",
   "avatarColor": "hotpink",
   "avatarImage": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVQYV2NgYAAAAAMAAWgmWQ0AAAAASUVORK5CYII="
 }
@@ -23,7 +23,7 @@ withCredentials: true
 
 {
   "username": "kimsson",
-  "password": "qwerty"
+  "password": "ytrewq"
 }
 
 ### 
@@ -37,3 +37,24 @@ GET {{baseUrl}}/{{urlPath}}/currentuser
 Content-Type: application/json
 Accept: application/json
 withCredentials: true
+
+### 
+POST {{baseUrl}}/{{urlPath}}/forgot-password
+Content-Type: application/json
+Accept: application/json
+withCredentials: true
+
+{
+    "email": "identity@kimsson.com"
+}
+
+### 
+POST {{baseUrl}}/{{urlPath}}/reset-password/39873611d025e85a3d99886b25ae91bcc6710ab9
+Content-Type: application/json
+Accept: application/json
+withCredentials: true
+
+{
+    "password": "ytrewq",
+    "confirmPassword": "ytrewq"
+}
